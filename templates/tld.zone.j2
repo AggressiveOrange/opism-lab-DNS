@@ -1,0 +1,13 @@
+; Zone lab. Generated from students.csv, do not edit by hand.
+$TTL 3600
+@        IN SOA ns1.nic.lab. hostmaster.nic.lab. ( {{ serial }} 1800 900 604800 60 )
+@        IN NS  ns1.nic.lab.
+ns1.nic  IN A   10.53.0.3
+web-a    IN A   10.53.0.80
+web-b    IN A   10.53.0.81
+
+; delegations to student zones + glue
+{% for s in students -%}
+{{ s.id }}{{ ' ' * (12 - s.id|length) }} IN NS ns.{{ s.id }}.lab.
+ns.{{ s.id }}{{ ' ' * (9 - s.id|length) }} IN A  {{ s.ip }}
+{% endfor %}

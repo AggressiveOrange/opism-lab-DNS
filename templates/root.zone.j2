@@ -1,0 +1,9 @@
+; Root zone of the lab. Generated, do not edit by hand.
+$TTL 86400
+.                    IN SOA a.root-servers.net. hostmaster.nic.lab. ( {{ serial }} 1800 900 604800 60 )
+.                    IN NS  a.root-servers.net.
+a.root-servers.net.  IN A   10.53.0.2
+
+; delegation of lab. + glue
+lab.                 172800 IN NS ns1.nic.lab.
+ns1.nic.lab.         172800 IN A  10.53.0.3

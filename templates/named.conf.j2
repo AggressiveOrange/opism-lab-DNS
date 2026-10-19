@@ -1,0 +1,27 @@
+// {{ comment }}
+include "/etc/bind/rndc.key";
+controls { inet 127.0.0.1 port 953 allow { 127.0.0.1; } keys { "rndc-key"; }; };
+
+options {
+    directory "/var/cache/bind";
+    pid-file "/run/named/named.pid";
+    listen-on { any; };
+    listen-on-v6 { none; };
+    recursion no;
+    allow-query { any; };
+    dnssec-validation no;
+    notify no;
+    querylog yes;
+};
+
+logging {
+    channel queries_file { file "/var/log/named/queries.log" versions 2 size 5m; print-time yes; };
+    channel main_file    { file "/var/log/named/named.log" versions 2 size 5m; print-time yes; severity info; };
+    category queries { queries_file; };
+    category default { main_file; };
+};
+
+zone "{{ zone }}" {
+    type primary;
+    file "{{ file }}";
+};

@@ -1,0 +1,14 @@
+; Zone {{ s.id }}.lab — starting version.
+; After every change: increase the serial, then run  zone-reload
+$TTL {{ s.ttl }}
+@     {{ s.soa_ttl }} IN SOA ns.{{ s.id }}.lab. admin.{{ s.id }}.lab. (
+            {{ serial }}01 ; serial
+            3600       ; refresh
+            600        ; retry
+            86400      ; expire
+            {{ s.neg_min }}         ; minimum
+        )
+@     IN NS ns.{{ s.id }}.lab.
+ns    IN A  {{ s.ip }}
+
+; ---- add records from your variant card below this line ----

@@ -1,0 +1,16 @@
+# {{ name }}: echoes what actually arrived at the server.
+user www-data;
+worker_processes 1;
+pid /tmp/nginx.pid;
+events { worker_connections 256; }
+http {
+    access_log /dev/stdout;
+    error_log  /dev/stderr;
+    server {
+        listen 80 default_server;
+        default_type text/plain;
+        location / {
+            return 200 "server: {{ name }}\nHost: $host\nrequest URI: $request_uri\npath: $uri\nquery: $args\nclient: $remote_addr\n";
+        }
+    }
+}

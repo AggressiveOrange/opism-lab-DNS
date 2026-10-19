@@ -1,0 +1,35 @@
+# {{ name }}. Generated.
+server:
+    verbosity: 1
+    interface: 0.0.0.0
+    port: 53
+    do-ip6: no
+    access-control: 10.53.0.0/16 allow
+    access-control: 127.0.0.0/8 allow
+    username: ""
+    chroot: ""
+    directory: "/lab"
+    pidfile: ""
+    use-syslog: no
+    logfile: ""
+    root-hints: "/lab/root.hints"
+    # Fake root is not signed: no trust anchor, no DNSSEC validation.
+    module-config: "iterator"
+    # Simpler traces in auth query logs; real resolvers usually have it on.
+    qname-minimisation: no
+    prefetch: no
+    # Re-probe a dead server quickly, so a restarted student server is used again within a minute.
+    infra-host-ttl: 60
+    # Cap the per-server retransmit timeout at 3 s (default 120 s).
+    infra-cache-max-rtt: 3000
+{%- if serve_expired %}
+    # RFC 8767: if upstream does not answer within 1.8 s, serve the expired record.
+    serve-expired: yes
+    serve-expired-ttl: 3600
+    serve-expired-client-timeout: 1800
+{%- endif %}
+
+remote-control:
+    control-enable: yes
+    control-interface: 127.0.0.1
+    control-use-cert: no
