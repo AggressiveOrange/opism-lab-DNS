@@ -40,11 +40,11 @@
 
 | № | scheme | userinfo | host | port | path | query | fragment |
 |---|---|---|---|---|---|---|---|
-| 1 | | | | | | | |
-| 2 | | | | | | | |
-| 3 | | | | | | | |
-| 4 | | | | | | | |
-| 5 | | | | | | | |
+| 1 | http | —— | www.se-201-28.lab | 80 | /orders/reports | ?page=60&lang=uk | #section-2 |
+| 2 | http | —— | portal.se-201-28.lab | 80 | /reports/ | ?page=%D0%BA%D0%B8%D1%97%D0%B2 | —— |
+| 3 | http | user:pass | @preview.se-201-28.lab | 80 | /orders | —— | #comments |
+| 4 | https | —— | www.se-201-28.lab | 4443 | /orders/../reports | —— | —— |
+| 5 | mailto | —— | —— | —— | admin@se-201-28.lab | ?subject=orders | —— |
 
 | № | Ім'я, що запитується в DNS | Заголовок `Host` | Ціль запиту (request target) |
 |---|---|---|---|
