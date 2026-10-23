@@ -87,26 +87,41 @@ URI 4: етап, на якому запит не вдається (пошук і
 
 ## Завдання 2. Проходження ієрархії вручну
 
-```text
-
+```
+dig @10.53.0.2 ns.se-201-28.lab A +norec
+dig @10.53.0.3 ns.se-201-28.lab A +norec
+dig @10.53.1.1 ns.se-201-28.lab A +norec
 ```
 
 | Сервер | status | flags | ANSWER | AUTHORITY | ADDITIONAL |
 |---|---|---|---|---|---|
-| 10.53.0.2 | | | | | |
-| 10.53.0.3 | | | | | |
-| 10.53.1.1 | | | | | |
+| 10.53.0.2 | NOERROR | qr | 0 | 1 | 2 |
+| 10.53.0.3 | NOERROR | qr | 0 | 1 | 2 |
+| 10.53.1.1 | NOERROR | qr aa | 1 | 1 | 1 |
 
 Вивід `dig ns.sNN.lab A +trace`:
 
-```text
+```
+; <<>> DiG 9.18.39-0ubuntu0.24.04.8-Ubuntu <<>> ns.se-201-28.lab A +trace
+;; global options: +cmd
+.                       85622   IN      NS      a.root-servers.net.
+;; Received 59 bytes from 10.53.0.53#53(10.53.0.53) in 1 ms
 
+lab.                    172800  IN      NS      ns1.nic.lab.
+;; Received 117 bytes from 10.53.0.2#53(a.root-servers.net) in 82 ms
+
+se-201-28.lab.          3600    IN      NS      ns.se-201-28.lab.
+;; Received 103 bytes from 10.53.0.3#53(ns1.nic.lab) in 41 ms
+
+ns.se-201-28.lab.       120     IN      A       10.53.1.1
+se-201-28.lab.          120     IN      NS      ns.se-201-28.lab.
+;; Received 103 bytes from 10.53.1.1#53(ns.se-201-28.lab) in 0 ms
 ```
 
 | Запит | TTL запису NS | Прапорець `aa` | Секція, у якій міститься NS |
 |---|---|---|---|
-| `dig @10.53.0.3 sNN.lab NS +norec` | | | |
-| `dig @10.53.1.1 sNN.lab NS +norec` | | | |
+| `dig @10.53.0.3 sNN.lab NS +norec` | 3600 | немає | AUTHORITY |
+| `dig @10.53.1.1 sNN.lab NS +norec` | 120 | є | ANSWER |
 
 1. Які відповіді є відсиланнями і за якими ознаками це визначено?
 
