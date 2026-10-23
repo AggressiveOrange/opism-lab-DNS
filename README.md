@@ -156,7 +156,57 @@ zone reload queued
 Порівняння відповідей резолвера та власного сервера:
 
 ```text
+root@ns-se-201-28:/# dig portal.se-201-28.lab
 
+; <<>> DiG 9.18.39-0ubuntu0.24.04.8-Ubuntu <<>> portal.se-201-28.lab
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 49874
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+;; QUESTION SECTION:
+;portal.se-201-28.lab.          IN      A
+
+;; ANSWER SECTION:
+portal.se-201-28.lab.   120     IN      CNAME   www.se-201-28.lab.
+www.se-201-28.lab.      120     IN      A       10.53.0.80
+
+;; Query time: 1 msec
+;; SERVER: 10.53.0.53#53(10.53.0.53) (UDP)
+;; WHEN: Fri Oct 23 17:00:54 UTC 2026
+;; MSG SIZE  rcvd: 83
+
+root@ns-se-201-28:/# dig @10.53.1.1 portal.se-201-28.lab +norec
+
+; <<>> DiG 9.18.39-0ubuntu0.24.04.8-Ubuntu <<>> @10.53.1.1 portal.se-201-28.lab +norec
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 59208
+;; flags: qr aa; QUERY: 1, ANSWER: 2, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: e7e12ebb5f738ab4010000006adb92cd8a5cb0bc2cb38b21 (good)
+;; QUESTION SECTION:
+;portal.se-201-28.lab.          IN      A
+
+;; ANSWER SECTION:
+portal.se-201-28.lab.   120     IN      CNAME   www.se-201-28.lab.
+www.se-201-28.lab.      120     IN      A       10.53.0.80
+
+;; AUTHORITY SECTION:
+se-201-28.lab.          120     IN      NS      ns.se-201-28.lab.
+
+;; ADDITIONAL SECTION:
+ns.se-201-28.lab.       120     IN      A       10.53.1.1
+
+;; Query time: 0 msec
+;; SERVER: 10.53.1.1#53(10.53.1.1) (UDP)
+;; WHEN: Fri Oct 23 17:01:01 UTC 2026
+;; MSG SIZE  rcvd: 144
 ```
 
 | Запит | flags | ANSWER (кількість, типи) | AUTHORITY (кількість, типи) | ADDITIONAL (кількість, типи) | TTL |
@@ -171,7 +221,9 @@ zone reload queued
 Повідомлення `zone-check` після тимчасового додавання `@ IN CNAME www`:
 
 ```text
-
+dns_master_load: /lab/zone/se-201-28.lab.zone:21: se-201-28.lab: CNAME and other data
+zone se-201-28.lab/IN: loading from master file /lab/zone/se-201-28.lab.zone failed: CNAME and other data
+zone se-201-28.lab/IN: not loaded due to errors.
 ```
 
 1. Який TTL має кожен запис зони і звідки це значення взято?
