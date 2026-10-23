@@ -48,11 +48,11 @@
 
 | № | Ім'я, що запитується в DNS | Заголовок `Host` | Ціль запиту (request target) |
 |---|---|---|---|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
+| 1 | www.se-201-28.lab | www.se-201-28.lab | /orders/reports?page=60&lang=uk |
+| 2 | portal.se-201-28.lab | portal.se-201-28.lab | /reports/?page=%D0%BA%D0%B8%D1%97%D0%B2 |
+| 3 | @preview.se-201-28.lab | @preview.se-201-28.lab | /orders |
+| 4 | www.se-201-28.lab | www.se-201-28.lab | /orders/../reports |
+| 5 | — | — | — |
 
 Декодоване значення параметра URI 2:
 
