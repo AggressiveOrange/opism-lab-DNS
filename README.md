@@ -63,27 +63,91 @@
 <!-- Для URI 1–3: рядки запиту (починаються з ">") і тіло відповіді сервера. -->
 
 ```text
+> GET /orders/reports?page=60&lang=uk HTTP/1.1
+> Host: www.se-201-28.lab
+> User-Agent: curl/8.5.0
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Server: nginx/1.24.0 (Ubuntu)
+< Date: Sun, 25 Oct 2026 14:46:45 GMT
+< Content-Type: text/plain
+< Content-Length: 146
+< Connection: keep-alive
+< 
+server: web-a
+Host: www.se-201-28.lab
+request URI: /orders/reports?page=60&lang=uk
+path: /orders/reports
+query: page=60&lang=uk
+client: 10.53.1.1
 
+> GET /reports/?page=%D0%BA%D0%B8%D1%97%D0%B2 HTTP/1.1
+> Host: portal.se-201-28.lab
+> User-Agent: curl/8.5.0
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Server: nginx/1.24.0 (Ubuntu)
+< Date: Sun, 25 Oct 2026 14:46:58 GMT
+< Content-Type: text/plain
+< Content-Length: 165
+< Connection: keep-alive
+< 
+server: web-a
+Host: portal.se-201-28.lab
+request URI: /reports/?page=%D0%BA%D0%B8%D1%97%D0%B2
+path: /reports/
+query: page=%D0%BA%D0%B8%D1%97%D0%B2
+client: 10.53.1.1
+
+> GET /orders HTTP/1.1
+> Host: preview.se-201-28.lab
+> Authorization: Basic dXNlcjpwYXNz
+> User-Agent: curl/8.5.0
+> Accept: */*
+> 
+< HTTP/1.1 200 OK
+< Server: nginx/1.24.0 (Ubuntu)
+< Date: Sun, 25 Oct 2026 14:47:06 GMT
+< Content-Type: text/plain
+< Content-Length: 103
+< Connection: keep-alive
+< 
+server: web-b
+Host: preview.se-201-28.lab
+request URI: /orders
+path: /orders
+query: 
+client: 10.53.1.1
 ```
 
 Значення заголовка `Authorization` і результат декодування:
 
 ```text
-
+Authorization: Basic dXNlcjpwYXNz
+user:passroot@ns-se-201-28:/#
 ```
 
 URI 4: етап, на якому запит не вдається (пошук імені / TCP / TLS), і рядки виводу, що це підтверджують:
 
 ```text
-
+* Host www.se-201-28.lab:4443 was resolved.
+* IPv6: (none)
+* IPv4: 10.53.0.80
+*   Trying 10.53.0.80:4443...
+* connect to 10.53.0.80 port 4443 from 10.53.1.1 port 45218 failed: Connection refused
+* Failed to connect to www.se-201-28.lab port 4443 after 43 ms: Couldn't connect to server
+* Closing connection
 ```
 
 | Запит | `request URI`, отриманий сервером | `path`, отриманий сервером |
 |---|---|---|
-| звичайний | | |
-| `--path-as-is` | | |
+| звичайний | /reports | /reports |
+| `--path-as-is` | /orders/../reports | /reports |
 
-Розбіжності між URI та тим, що отримав сервер, і їх пояснення:
+Розбіжності між URI та тим, що отримав сервер, і їх пояснення:<br>
+Під час звичайного запиту програма curl виконує нормалізацію URI, тобто приведення до стандартного вигляду посилання прибираючи заві переміщення до батьківських дерикторій, перед відправкою його на сервер. Прапорець --path-as-is забороняє програмі curl виконувати будь які дії із запитом перед його відправкою на сервер.
 
 ## Завдання 2. Проходження ієрархії вручну
 
