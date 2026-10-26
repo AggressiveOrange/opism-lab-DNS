@@ -450,15 +450,54 @@ zone reload queued
 
 | Ім'я | Перший запит | Повторний запит |
 |---|---|---|
-| A: нове ім'я у власній зоні | | |
-| B: нове ім'я в зоні `lab.` | | |
-| C: ім'я в неіснуючому TLD | | |
-| D: `www.sNN.lab` після перезапуску резолвера | | |
+| A: нове ім'я у власній зоні | 10.53.1.1 | зі свого локального кешу |
+| B: нове ім'я в зоні `lab.` | 10.53.0.2 | 10.53.0.3 |
+| C: ім'я в неіснуючому TLD | 10.53.0.2 | зі свого негативного кешу |
+| D: `www.sNN.lab` після перезапуску резолвера | 10.53.1.1 | зі свого локального кешу |
 
 Вивід вимірювань:
 
 ```text
+root@ns-se-201-28:/# A=y$RANDOM.se-201-28.lab; dig $A | grep 'Query time'; dig $A | grep 'Query time'
+;; Query time: 0 msec
+;; Query time: 2 msec
+root@ns-se-201-28:/# B=x$RANDOM.lab; dig $B | grep 'Query time'; dig $B | grep 'Query time'
+;; Query time: 40 msec
+;; Query time: 0 msec
+root@ns-se-201-28:/# C=x$RANDOM.zz; dig $C | grep 'Query time'; dig $C | grep 'Query time'
+;; Query time: 80 msec
+;; Query time: 0 msec
 
+@AggressiveOrange ➜ /workspaces/opism-lab-DNS (master) $ docker compose -f stand/compose.yaml restart resolver-a
+[+] restart 0/1
+ ⠹ Container dnslab-resolver-a-1 Restarting
+
+root@ns-se-201-28:/# dig www.se-201-28.lab | grep 'Query time'; dig www.se-201-28.lab | grep 'Query time'
+;; Query time: 401 msec
+;; Query time: 0 msec
+root@ns-se-201-28:/# querylog
+26-Oct-2026 08:49:23.613 client @0x7375e8000e98 10.53.0.2#51864 (se-201-28.lab): query: se-201-28.lab IN SOA -E(0)K (10.53.1.1)
+26-Oct-2026 08:49:24.228 client @0x7375f006ae18 10.53.0.53#39016 (ns.se-201-28.lab): query: ns.se-201-28.lab IN A -E(0)DC (10.53.1.1)
+26-Oct-2026 08:49:24.847 client @0x7375f006ae18 10.53.0.54#51489 (ns.se-201-28.lab): query: ns.se-201-28.lab IN A -E(0)DC (10.53.1.1)
+26-Oct-2026 08:50:34.603 client @0x7375f006ae18 10.53.0.53#37562 (y19768.se-201-28.lab): query: y19768.se-201-28.lab IN A -E(0)DC (10.53.1.1)
+26-Oct-2026 08:51:17.616 client @0x7375f006ae18 10.53.0.53#34740 (www.se-201-28.lab): query: www.se-201-28.lab IN A -E(0)DC (10.53.1.1)
+
+@AggressiveOrange ➜ /workspaces/opism-lab-DNS (master) $ docker compose -f stand/compose.yaml exec root tail /var/log/named/queries.log
+26-Oct-2026 08:49:23.906 client @0x7661e4006078 10.53.0.53#29328 (.): query: . IN NS -E(0)DC (10.53.0.2)
+26-Oct-2026 08:49:23.987 client @0x7661ec06ac88 10.53.0.53#63893 (a.root-servers.net): query: a.root-servers.net IN A -E(0)DC (10.53.0.2)
+26-Oct-2026 08:49:24.067 client @0x7661e4006078 10.53.0.53#20216 (ns.se-201-28.lab): query: ns.se-201-28.lab IN A -E(0)DC (10.53.0.2)
+26-Oct-2026 08:49:24.525 client @0x7661ec06ac88 10.53.0.54#32151 (.): query: . IN NS -E(0)DC (10.53.0.2)
+26-Oct-2026 08:49:24.606 client @0x7661ec06ac88 10.53.0.54#30131 (a.root-servers.net): query: a.root-servers.net IN A -E(0)DC (10.53.0.2)
+26-Oct-2026 08:49:24.686 client @0x7661ec06ac88 10.53.0.54#32928 (ns.se-201-28.lab): query: ns.se-201-28.lab IN A -E(0)DC (10.53.0.2)
+26-Oct-2026 08:50:51.805 client @0x7661ec06ac88 10.53.0.53#57922 (x2925.zz): query: x2925.zz IN A -E(0)DC (10.53.0.2)
+26-Oct-2026 08:51:17.294 client @0x7661e4006078 10.53.0.53#5017 (.): query: . IN NS -E(0)DC (10.53.0.2)
+26-Oct-2026 08:51:17.375 client @0x7661e4006078 10.53.0.53#36861 (a.root-servers.net): query: a.root-servers.net IN A -E(0)DC (10.53.0.2)
+26-Oct-2026 08:51:17.455 client @0x7661e4006078 10.53.0.53#47166 (www.se-201-28.lab): query: www.se-201-28.lab IN A -E(0)DC (10.53.0.2)
+@AggressiveOrange ➜ /workspaces/opism-lab-DNS (master) $ docker compose -f stand/compose.yaml exec tld tail /var/log/named/queries.log
+26-Oct-2026 08:49:24.188 client @0x798bac06ac88 10.53.0.53#51005 (ns.se-201-28.lab): query: ns.se-201-28.lab IN A -E(0)DC (10.53.0.3)
+26-Oct-2026 08:49:24.807 client @0x798ba4004488 10.53.0.54#38419 (ns.se-201-28.lab): query: ns.se-201-28.lab IN A -E(0)DC (10.53.0.3)
+26-Oct-2026 08:50:43.163 client @0x798ba4004488 10.53.0.53#61183 (x4027.lab): query: x4027.lab IN A -E(0)DC (10.53.0.3)
+26-Oct-2026 08:51:17.576 client @0x798ba4004488 10.53.0.53#45232 (www.se-201-28.lab): query: www.se-201-28.lab IN A -E(0)DC (10.53.0.3)
 ```
 
 | Ім'я | Перший запит, мс | Повторний, мс | Сервери, до яких звернувся резолвер (за журналами) |
