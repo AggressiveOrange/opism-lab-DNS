@@ -513,40 +513,94 @@ root@ns-se-201-28:/# dig www.se-201-28.lab | grep 'Query time'; dig www.se-201-2
 Кешування запису в обох резолверах (крок 2) і час зупинки сервера (крок 3):
 
 ```text
+Крок 2:
+root@ns-se-201-28:/# dig @10.53.0.53 preview.se-201-28.lab +noall +answer; dig @10.53.0.54 preview.se-201-28.lab +noall +answer
+;; communications error to 10.53.0.53#53: timed out
+;; communications error to 10.53.0.53#53: timed out
+;; communications error to 10.53.0.53#53: timed out
 
+; <<>> DiG 9.18.39-0ubuntu0.24.04.8-Ubuntu <<>> @10.53.0.53 preview.se-201-28.lab +noall +answer
+; (1 server found)
+;; global options: +cmd
+;; no servers could be reached
+;; communications error to 10.53.0.54#53: timed out
+;; communications error to 10.53.0.54#53: timed out
+;; communications error to 10.53.0.54#53: timed out
+
+; <<>> DiG 9.18.39-0ubuntu0.24.04.8-Ubuntu <<>> @10.53.0.54 preview.se-201-28.lab +noall +answer
+; (1 server found)
+;; global options: +cmd
+;; no servers could be reached
+
+Крок 3:
+root@ns-se-201-28:/# named-stop; date +%T; sleep 30
+17:00:41
 ```
 
 Запити із заміром часу (крок 5):
 
 ```text
+root@ns-se-201-28:/# time dig @10.53.0.53 preview.se-201-28.lab +tries=1 +timeout=30; time dig @10.53.0.53 preview.se-201-28.lab +tries=1 +timeout=30; time dig @10.53.0.54 preview.se-201-28.lab +tries=1 +timeout=30
+;; communications error to 10.53.0.53#53: timed out
+;; no servers could be reached
+real    0m30.046s
 
+;; communications error to 10.53.0.53#53: timed out
+;; no servers could be reached
+real    0m30.035s
+
+;; communications error to 10.53.0.54#53: timed out
+;; no servers could be reached
+real    0m30.029s
 ```
 
 | Запит | status або тайм-аут | ANSWER, TTL | `real` |
 |---|---|---|---|
-| resolver-a, перший | | | |
-| resolver-a, другий | | | |
-| resolver-b | | | |
+| resolver-a, перший | no servers could be reached | — | 30.046s |
+| resolver-a, другий | no servers could be reached | — | 30.035s |
+| resolver-b | no servers could be reached | — | 30.029s |
 
 Час `named-start` і вивід циклу спостереження до першої успішної відповіді (крок 6):
 
 ```text
+Час запуску сервера: 17:02:53
 
+17:02:53 ;; communications error to 10.53.0.53#53: timed out
+17:02:58 ;; communications error to 10.53.0.53#53: timed out
+17:03:03 ;; communications error to 10.53.0.53#53: timed out
+17:03:08 ;; communications error to 10.53.0.53#53: timed out
+17:03:13 ;; communications error to 10.53.0.53#53: timed out
+17:03:18 ;; communications error to 10.53.0.53#53: timed out
+17:03:23 ;; communications error to 10.53.0.53#53: timed out
+17:03:28 ;; communications error to 10.53.0.53#53: timed out
+17:03:33 ;; communications error to 10.53.0.53#53: timed out
+17:03:38 ;; communications error to 10.53.0.53#53: timed out
+17:03:43 ;; communications error to 10.53.0.53#53: timed out
+17:03:48 ;; communications error to 10.53.0.53#53: timed out
+17:03:53 ;; communications error to 10.53.0.53#53: timed out
+17:03:58 ;; communications error to 10.53.0.53#53: timed out
+17:04:03 ;; communications error to 10.53.0.53#53: timed out
+17:04:08 ;; communications error to 10.53.0.53#53: timed out
+17:04:13 ;; communications error to 10.53.0.53#53: timed out
+17:04:18 ;; communications error to 10.53.0.53#53: timed out
+17:04:23 ;; communications error to 10.53.0.53#53: timed out
+;; no servers could be reached
 ```
 
 Перевірка після завдання (`dig @10.53.1.1 sNN.lab SOA +norec +short`):
 
 ```text
-
+root@ns-se-201-28:/# dig @10.53.1.1 se-201-28.lab SOA +norec +short
+ns.se-201-28.lab. admin.se-201-28.lab. 2026102304 3600 600 86400 40
 ```
 
 ### Постмортем
 
-1. Що сталося:
-2. Вплив на клієнтів resolver-a і resolver-b:
-3. Хронологія з виміряним часом:
-4. Чому кеш допоміг або не допоміг:
-5. Що слід змінити:
+1. Що сталося: відбулась зупинка сервера в 17:00:41.
+2. Вплив на клієнтів resolver-a і resolver-b: клієнти обох резолверів взагалі не отримали відповіді.
+3. Хронологія з виміряним часом: 17:00:41 - зупинка сервера, з 17:01:11 до 17:02:41 запити до резолверів, 17:02:53 - запуск сервера, 17:04:23 - запуск зони.
+4. Чому кеш допоміг або не допоміг: кеш не допоміг тому, що не встиг отримати запис до вимкнення сервера.
+5. Що слід змінити: потрібно оновити резолвери в терміналі CodeSpace щоб вони почали відповідати та закешувати відповідь до вимкнення зупинення зервера. 
 
 1. Який TTL мав запис у відповіді resolver-b і навіщо такий TTL?
 
