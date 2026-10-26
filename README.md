@@ -619,7 +619,27 @@ ns.se-201-28.lab. admin.se-201-28.lab. 2026102304 3600 600 86400 40
 <!-- Повний вміст stand/students/sNN/zone/sNN.lab.zone після завершення роботи. -->
 
 ```text
+; Zone se-201-28.lab — starting version.
+; After every change: increase the serial, then run  zone-reload
+$TTL 120
+@     120 IN SOA ns.se-201-28.lab. admin.se-201-28.lab. (
+            2026102304 ; serial
+            3600       ; refresh
+            600        ; retry
+            86400      ; expire
+            40         ; minimum
+        )
+@     IN NS ns.se-201-28.lab.
+ns    IN A  10.53.1.1
 
+; ---- add records from your variant card below this line ----
+www IN A 10.53.0.81
+portal IN CNAME www
+mail IN A 10.53.0.80
+@ IN MX 10 mail
+@ IN TXT "lab-token=0456c77c"
+preview 20 IN A 10.53.0.81
+new-ketcc IN A 10.53.0.80
 ```
 
 ## Висновки
